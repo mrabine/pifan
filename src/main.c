@@ -42,9 +42,9 @@ void usage ()
     printf ("Usage: pifan [options]\n");
     printf ("-h                show available options\n");
     printf ("-p pin            gpio pin (default: 14)\n");
-    printf ("-i interval       sleep interval (default: 5)\n");
-    printf ("-l threshold      lower threshold (default: 50)\n");
-    printf ("-u threshold      upper threshold (default: 60)\n");
+    printf ("-i interval       sleep interval (default: 2)\n");
+    printf ("-l threshold      lower threshold (default: 55)\n");
+    printf ("-u threshold      upper threshold (default: 65)\n");
     printf ("-n                don't fork into background\n");
 }
 
@@ -66,8 +66,8 @@ int main (int argc, char **argv)
 {
     openlog ("pifan", LOG_PERROR, LOG_DAEMON);
 
-    int pin = 14, interval = 5;
-    float min = 50.0, max = 60.0;
+    int pin = 14, interval = 2;
+    float min = 55.0, max = 65.0;
     bool daemonize = true;
 
     for (;;)
