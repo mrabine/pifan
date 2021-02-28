@@ -10,11 +10,19 @@ To download the latest source do this:
 git clone https://github.com/mrabine/pifan.git
 ```
 
+## Configuration
+
+To configure pifan do this:
+```bash
+cd pifan
+mkdir build && cd build
+cmake ..
+```
+
 ## Installation
 
 To install pifan do this:
 ```bash
-cd pifan
 make && sudo make install
 ```
 
