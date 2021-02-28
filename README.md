@@ -1,2 +1,48 @@
 # pifan
-Raspberry Pi 4 Model B fan controller
+Raspberry Pi fan controller daemon
+
+Start fan when CPU temperature is high and stop it when CPU temperature is low.
+
+## Download
+
+To download the latest source do this:
+```bash
+git clone https://github.com/mrabine/pifan.git
+```
+
+## Installation
+
+To install pifan do this:
+```bash
+cd pifan
+make && sudo make install
+```
+
+## Enabling
+
+To enable pifan do this:
+```bash
+sudo systemctl enable pifan
+sudo systemctl start pifan
+```
+
+## Usage
+
+**pifan** [options]
+
+**-h**\
+&emsp;show available options\
+**-p pin**\
+&emsp;gpio pin (default: 14)\
+**-i interval**\
+&emsp;sleep interval (default: 2 seconds)\
+**-l threshold**\
+&emsp;lower threshold (default: 55&deg;c)\
+**-u threshold**\
+&emsp;upper threshold (default: 65&deg;C)\
+**-n**\
+&emsp;don't fork into background
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
