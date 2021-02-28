@@ -1,0 +1,12 @@
+[Unit]
+Description=Raspberry Pi 4 Model B fan controller
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+ExecStart=/sbin/pifan -n
+
+[Install]
+WantedBy=multi-user.target
