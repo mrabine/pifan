@@ -204,19 +204,19 @@ int main (int argc, char **argv)
         int nready = poll (pfds, 1, interval * 1000);
         if (nready == -1)
         {
-            syslog (LOG_ERR, "poll failed - %s", strerror (errno));
+            syslog (LOG_ERR, "signal poll failed - %s", strerror (errno));
             gpiod_line_release (line);
             gpiod_chip_close (chip);
             _exit (EXIT_FAILURE);
         }
 
-        if ((nready == 1) && (pfds[0].revents & POLLIN))
+        if ((nready > 0) && (pfds[0].revents & POLLIN))
         {
             struct signalfd_siginfo fdsi;
             ssize_t size = read (sfd, &fdsi, sizeof (fdsi));
             if (size != sizeof (fdsi))
             {
-                syslog (LOG_ERR, "poll failed - %s", strerror (errno));
+                syslog (LOG_ERR, "signal read failed - %s", strerror (errno));
                 gpiod_line_release (line);
                 gpiod_chip_close (chip);
                 _exit (EXIT_FAILURE);
