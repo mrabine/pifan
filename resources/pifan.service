@@ -7,6 +7,8 @@ StartLimitBurst=5
 Restart=on-failure
 RestartSec=5s
 ExecStart=/sbin/pifan -n
+StandardOutput=null
+StandardError=null
 
 [Install]
 WantedBy=multi-user.target
