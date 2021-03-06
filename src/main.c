@@ -82,7 +82,7 @@ int main (int argc, char **argv)
         switch (command)
         {
             case 'c':
-                printf ("cpu temperature: %.2f°C\n", cputemp ());
+                printf ("cpu temp: %.2f°C\n", cputemp ());
                 _exit (EXIT_SUCCESS);
             case 'h':
                 usage ();
@@ -195,13 +195,13 @@ int main (int argc, char **argv)
 
         if ((temp > max) && (gpiod_line_get_value (line) == 0))
         {
-            syslog (LOG_NOTICE, "starting fan - cpu temp is %f °C", temp);
+            syslog (LOG_NOTICE, "starting fan - cpu temp: %.2f°C", temp);
             gpiod_line_set_value (line, 1);
         }
 
         if ((gpiod_line_get_value (line) == 1) && (temp < min))
         {
-            syslog (LOG_NOTICE, "stopping fan - cpu temp is %f °C", temp);
+            syslog (LOG_NOTICE, "stopping fan - cpu temp: %.2f°C", temp);
             gpiod_line_set_value (line, 0);
         }
 
