@@ -46,12 +46,12 @@ sudo systemctl start pifan
 &emsp;sleep interval (default: 2 seconds)\
 **-l threshold**\
 &emsp;lower threshold (default: 55&deg;c)\
+**-n**\
+&emsp;don't fork into background
 **-p pin**\
 &emsp;gpio pin (default: 14)\
 **-u threshold**\
 &emsp;upper threshold (default: 65&deg;C)\
-**-n**\
-&emsp;don't fork into background
 
 ## License
 

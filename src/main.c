@@ -44,9 +44,9 @@ void usage ()
     printf ("-h                show available options\n");
     printf ("-i interval       sleep interval (default: 2 seconds)\n");
     printf ("-l threshold      lower threshold (default: 60°C)\n");
+    printf ("-n                don't fork into background\n");
     printf ("-p pin            gpio pin (default: 14)\n");
     printf ("-u threshold      upper threshold (default: 70°C)\n");
-    printf ("-n                don't fork into background\n");
 }
 
 float cputemp ()
@@ -73,7 +73,7 @@ int main (int argc, char **argv)
 
     for (;;)
     {
-        int command = getopt (argc , argv, "chi:l:p:u:n");
+        int command = getopt (argc , argv, "chi:l:np:u:");
         if (command == -1)
         {
             break;
@@ -93,14 +93,14 @@ int main (int argc, char **argv)
             case 'l':
                 min = atof (optarg);
                 break;
+            case 'n':
+                daemonize = false;
+                break;
             case 'p':
                 pin = atoi (optarg);
                 break;
             case 'u':
                 max = atof (optarg);
-                break;
-            case 'n':
-                daemonize = false;
                 break;
             default:
                 usage ();
