@@ -38,6 +38,8 @@ sudo systemctl start pifan
 
 **pifan** [options]
 
+**-c**\
+&emsp;print the cpu temperature\
 **-h**\
 &emsp;show available options\
 **-p pin**\
