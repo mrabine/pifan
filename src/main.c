@@ -40,11 +40,12 @@
 void usage ()
 {
     printf ("Usage: pifan [options]\n");
+    printf ("-c                print the cpu temperature\n");
     printf ("-h                show available options\n");
     printf ("-p pin            gpio pin (default: 14)\n");
-    printf ("-i interval       sleep interval (default: 2)\n");
-    printf ("-l threshold      lower threshold (default: 55)\n");
-    printf ("-u threshold      upper threshold (default: 65)\n");
+    printf ("-i interval       sleep interval (default: 2 seconds)\n");
+    printf ("-l threshold      lower threshold (default: 60°C)\n");
+    printf ("-u threshold      upper threshold (default: 70°C)\n");
     printf ("-n                don't fork into background\n");
 }
 
@@ -67,12 +68,12 @@ int main (int argc, char **argv)
     openlog ("pifan", LOG_PERROR, LOG_DAEMON);
 
     int pin = 14, interval = 2;
-    float min = 55.0, max = 65.0;
+    float min = 60.0, max = 70.0;
     bool daemonize = true;
 
     for (;;)
     {
-        int command = getopt (argc , argv, "hp:i:l:u:n");
+        int command = getopt (argc , argv, "chp:i:l:u:n");
         if (command == -1)
         {
             break;
@@ -80,6 +81,9 @@ int main (int argc, char **argv)
 
         switch (command)
         {
+            case 'c':
+                printf ("cpu temperature: %.2f°C\n", cputemp ());
+                _exit (EXIT_SUCCESS);
             case 'h':
                 usage ();
                 _exit (EXIT_SUCCESS);
