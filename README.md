@@ -51,7 +51,7 @@ sudo systemctl start pifan
 **-p pin**\
 &emsp;gpio pin (default: 14)\
 **-u threshold**\
-&emsp;upper threshold (default: 65&deg;C)\
+&emsp;upper threshold (default: 65&deg;C)
 
 ## License
 
