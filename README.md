@@ -42,12 +42,12 @@ sudo systemctl start pifan
 &emsp;print the cpu temperature\
 **-h**\
 &emsp;show available options\
-**-p pin**\
-&emsp;gpio pin (default: 14)\
 **-i interval**\
 &emsp;sleep interval (default: 2 seconds)\
 **-l threshold**\
 &emsp;lower threshold (default: 55&deg;c)\
+**-p pin**\
+&emsp;gpio pin (default: 14)\
 **-u threshold**\
 &emsp;upper threshold (default: 65&deg;C)\
 **-n**\
