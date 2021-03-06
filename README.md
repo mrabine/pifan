@@ -47,7 +47,7 @@ sudo systemctl start pifan
 **-l threshold**\
 &emsp;lower threshold (default: 55&deg;c)\
 **-n**\
-&emsp;don't fork into background
+&emsp;don't fork into background\
 **-p pin**\
 &emsp;gpio pin (default: 14)\
 **-u threshold**\
