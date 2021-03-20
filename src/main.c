@@ -65,7 +65,7 @@ float cputemp ()
 {
     float temp = 0.0;
 
-    FILE* file = fopen ("/sys/class/thermal/thermal_zone0/temp", "r");
+    FILE* file = fopen ("/sys/class/thermal/"THERMAL_ZONE"/temp", "r");
     if (file)
     {
         (void) (fscanf (file, "%f", &temp) + 1);

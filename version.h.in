@@ -1,12 +1,13 @@
 #ifndef __PIFAN_VERSION_H__
 #define __PIFAN_VERSION_H__
 
-#define GPIO_CHIP       "gpiochip0"
-
 #define BINARY_NAME     "@PROJECT_NAME@"
 
 #define VERSION_MAJOR   "@VERSION_MAJOR@"
 #define VERSION_MINOR   "@VERSION_MINOR@"
 #define VERSION_PATCH   "@VERSION_PATCH@"
+
+#define THERMAL_ZONE    "thermal_zone0"
+#define GPIO_CHIP       "gpiochip0"
 
 #endif
