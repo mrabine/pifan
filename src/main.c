@@ -94,7 +94,7 @@ int main (int argc, char **argv)
         switch (command)
         {
             case 'c':
-                printf ("cpu temp: %.2f°C\n", cputemp ());
+                printf ("%.2f°C\n", cputemp ());
                 _exit (EXIT_SUCCESS);
             case 'h':
                 usage ();
@@ -182,10 +182,10 @@ int main (int argc, char **argv)
     pfds[0].events = POLLIN;
     pfds[0].fd = sfd;
 
-    struct gpiod_chip* chip = gpiod_chip_open_by_name ("gpiochip0");
+    struct gpiod_chip* chip = gpiod_chip_open_by_name (GPIO_CHIP);
     if (chip == NULL)
     {
-        syslog (LOG_ERR, "unable to open \"gpiochip0\" - %s", strerror (errno));
+        syslog (LOG_ERR, "unable to open the gpio chip - %s", strerror (errno));
         _exit (EXIT_FAILURE);
     }
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(pifan)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 file(STRINGS "${PROJECT_SOURCE_DIR}/VERSION" VERSION)
 string(REGEX REPLACE "([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" VERSION_MAJOR ${VERSION})
@@ -12,7 +12,6 @@ message(STATUS "${PROJECT_NAME} version: ${VERSION}")
 configure_file("${PROJECT_SOURCE_DIR}/version.h.in" "${PROJECT_SOURCE_DIR}/src/version.h")
 
 include(FindPkgConfig)
-
 find_package(GPIOD REQUIRED)
 include_directories(${GPIOD_INCLUDE_DIRS})
 
