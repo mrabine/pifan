@@ -15,6 +15,7 @@ include(FindPkgConfig)
 find_package(GPIOD REQUIRED)
 include_directories(${GPIOD_INCLUDE_DIRS})
 
+add_definitions(-D_POSIX_C_SOURCE=1)
 add_executable(${PROJECT_NAME} src/main.c)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(${PROJECT_NAME} ${GPIOD_LIBRARIES} pthread)

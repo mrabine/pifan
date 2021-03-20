@@ -40,11 +40,17 @@
 #include <gpiod.h>
 #include <poll.h>
 
+/**
+ * @brief print binary version.
+ */
 void version ()
 {
     printf(BINARY_NAME" version "VERSION_MAJOR"."VERSION_MINOR"."VERSION_PATCH"\n");
 }
 
+/**
+ * @brief print binary usage.
+ */
 void usage ()
 {
     printf ("Usage\n");
@@ -61,6 +67,10 @@ void usage ()
     printf ("  -v                print version\n");
 }
 
+/**
+ * @brief get cpu temperature.
+ * @return cpu temperature. 
+ */
 float cputemp ()
 {
     float temp = 0.0;
@@ -75,6 +85,11 @@ float cputemp ()
     return temp / 1000.0;
 }
 
+/**
+ * @brief main function.
+ * @param argc number of command line arguments.
+ * @param argv command line arguments. 
+ */ 
 int main (int argc, char **argv)
 {
     openlog (BINARY_NAME, LOG_PERROR, LOG_DAEMON);
@@ -125,8 +140,8 @@ int main (int argc, char **argv)
 
     if (daemonize)
     {
-        pid_t pid = -1;
-        if ((pid = fork ()) < 0)
+        pid_t pid = fork ();
+        if (pid < 0)
         {
             syslog (LOG_ERR, "unable to fork daemon - %s", strerror (errno));
             _exit (EXIT_FAILURE);
@@ -139,8 +154,8 @@ int main (int argc, char **argv)
 
         umask (0);
 
-        pid_t sid = -1;
-        if ((sid = setsid ()) < 0)
+        pid_t sid = setsid ();
+        if (sid < 0)
         {
             syslog (LOG_ERR, "unable to create a new sid - %s", strerror (errno));
             _exit (EXIT_FAILURE);
