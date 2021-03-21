@@ -50,7 +50,7 @@
  */
 void version ()
 {
-    printf(BINARY_NAME" version "VERSION_MAJOR"."VERSION_MINOR"."VERSION_PATCH"\n");
+    printf (BINARY_NAME" version "VERSION_MAJOR"."VERSION_MINOR"."VERSION_PATCH"\n");
 }
 
 /**
