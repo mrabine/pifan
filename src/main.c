@@ -25,6 +25,9 @@
 // pifan.
 #include "version.h"
 
+// libgpiod.
+#include <gpiod.h>
+
 // C.
 #include <sys/signalfd.h>
 #include <sys/stat.h>
@@ -37,7 +40,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <gpiod.h>
 #include <poll.h>
 
 #define THERMAL_ZONE    "thermal_zone0"
@@ -138,7 +140,7 @@ int main (int argc, char **argv)
             default:
                 usage ();
                 _exit (EXIT_FAILURE);
-       }
+        }
     }
 
     if (daemonize)
