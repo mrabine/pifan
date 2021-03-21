@@ -277,5 +277,7 @@ int main (int argc, char **argv)
     gpiod_line_release (line);
     gpiod_chip_close (chip);
 
+    closelog ();
+
     _exit (EXIT_SUCCESS);
 }
