@@ -40,6 +40,9 @@
 #include <gpiod.h>
 #include <poll.h>
 
+#define THERMAL_ZONE    "thermal_zone0"
+#define GPIO_CHIP       "gpiochip0"
+
 /**
  * @brief print binary version.
  */

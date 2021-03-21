@@ -7,7 +7,4 @@
 #define VERSION_MINOR   "@VERSION_MINOR@"
 #define VERSION_PATCH   "@VERSION_PATCH@"
 
-#define THERMAL_ZONE    "thermal_zone0"
-#define GPIO_CHIP       "gpiochip0"
-
 #endif
