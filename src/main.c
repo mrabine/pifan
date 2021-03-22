@@ -206,6 +206,7 @@ int main (int argc, char **argv)
     if (chip == NULL)
     {
         syslog (LOG_ERR, "unable to open the gpio chip - %s", strerror (errno));
+        close (sfd);
         _exit (EXIT_FAILURE);
     }
 
@@ -214,6 +215,7 @@ int main (int argc, char **argv)
     {
         syslog (LOG_ERR, "unable to open line %ul - %s", pin, strerror (errno));
         gpiod_chip_close (chip);
+        close (sfd);
         _exit (EXIT_FAILURE);
     }
 
@@ -221,6 +223,7 @@ int main (int argc, char **argv)
     {
         syslog (LOG_ERR, "unable to get ownership on line %u - %s", pin, strerror (errno));
         gpiod_chip_close (chip);
+        close (sfd);
         _exit (EXIT_FAILURE); 
     }
 
@@ -246,6 +249,7 @@ int main (int argc, char **argv)
             syslog (LOG_ERR, "signal poll failed - %s", strerror (errno));
             gpiod_line_release (line);
             gpiod_chip_close (chip);
+            close (sfd);
             _exit (EXIT_FAILURE);
         }
 
@@ -258,6 +262,7 @@ int main (int argc, char **argv)
                 syslog (LOG_ERR, "signal read failed - %s", strerror (errno));
                 gpiod_line_release (line);
                 gpiod_chip_close (chip);
+                close (sfd);
                 _exit (EXIT_FAILURE);
             }
 
@@ -276,8 +281,7 @@ int main (int argc, char **argv)
 
     gpiod_line_release (line);
     gpiod_chip_close (chip);
-
-    closelog ();
+    close (sfd);
 
     _exit (EXIT_SUCCESS);
 }
