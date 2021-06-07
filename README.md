@@ -1,4 +1,8 @@
 # pifan
+[![Build Status](https://github.com/mrabine/pifan/workflows/build/badge.svg)](https://github.com/mrabine/pifan/actions?query=workflow%3Abuild)
+[![GitHub Releases](https://img.shields.io/github/release/mrabine/pifan.svg)](https://github.com/mrabine/pifan/releases/latest)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mrabine/pifan/blob/main/LICENSE)
+
 Raspberry Pi fan controller daemon
 
 Start fan when CPU temperature is high and stop it when CPU temperature is low.
