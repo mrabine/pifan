@@ -1,0 +1,47 @@
+name: security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: "51 9 * * 5"
+
+jobs:
+  scan:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Install dependencies
+      run: sudo apt-get install gpiod libgpiod-dev
+
+    - name: Checkout
+      uses: actions/checkout@v3.5.0
+
+    - name: Perform codacy analysis
+      uses: codacy/codacy-analysis-cli-action@v4.3.0
+      with:
+        project-token: ${{secrets.CODACY_PROJECT_TOKEN}}
+        verbose: true
+        output: results.sarif
+        format: sarif
+        gh-code-scanning-compat: true
+        max-allowed-issues: 2147483647
+
+    - name: Upload codacy scan report to github
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: results.sarif
+
+    - name: Initialize codeql
+      uses: github/codeql-action/init@v2
+
+    - name: Configure
+      run: cmake -B _lgtm_build_dir -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build _lgtm_build_dir --config Release
+
+    - name: Perform codeql analysis
+      uses: github/codeql-action/analyze@v2

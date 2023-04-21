@@ -1,8 +1,6 @@
 # pifan
-[![Build Status](https://github.com/mrabine/pifan/workflows/build/badge.svg)](https://github.com/mrabine/pifan/actions?query=workflow%3Abuild)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/mrabine/pifan.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mrabine/pifan/alerts/)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/mrabine/pifan.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mrabine/pifan/context:cpp)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/aa8d30be1e104cdebdaf1861de8a8db1)](https://www.codacy.com/gh/mrabine/pifan/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mrabine/pifan&amp;utm_campaign=Badge_Grade)
+[![Security Status](https://github.com/mrabine/pifan/workflows/security/badge.svg)](https://github.com/mrabine/pifan/security/code-scanning)
+[![Codacy Grade](https://app.codacy.com/project/badge/Grade/aa8d30be1e104cdebdaf1861de8a8db1)](https://www.codacy.com/gh/mrabine/pifan/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mrabine/pifan&amp;utm_campaign=Badge_Grade)
 [![GitHub Releases](https://img.shields.io/github/release/mrabine/pifan.svg)](https://github.com/mrabine/pifan/releases/latest)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mrabine/pifan/blob/main/LICENSE)
 
