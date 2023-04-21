@@ -1,4 +1,5 @@
 # pifan
+
 [![Security Status](https://github.com/mrabine/pifan/workflows/security/badge.svg)](https://github.com/mrabine/pifan/security/code-scanning)
 [![Codacy Grade](https://app.codacy.com/project/badge/Grade/aa8d30be1e104cdebdaf1861de8a8db1)](https://www.codacy.com/gh/mrabine/pifan/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mrabine/pifan&amp;utm_campaign=Badge_Grade)
 [![GitHub Releases](https://img.shields.io/github/release/mrabine/pifan.svg)](https://github.com/mrabine/pifan/releases/latest)
@@ -7,6 +8,13 @@
 Raspberry Pi fan controller daemon
 
 Start fan when CPU temperature is high and stop it when CPU temperature is low.
+
+## Dependencies
+
+To install dependencies do this:
+```bash
+sudo apt install gpiod libgpiod-dev
+```
 
 ## Download
 
