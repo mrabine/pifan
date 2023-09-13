@@ -1,7 +1,7 @@
 # pifan
 
 [![Security Status](https://github.com/mrabine/pifan/workflows/security/badge.svg)](https://github.com/mrabine/pifan/security/code-scanning)
-[![Codacy Grade](https://app.codacy.com/project/badge/Grade/aa8d30be1e104cdebdaf1861de8a8db1)](https://www.codacy.com/gh/mrabine/pifan/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mrabine/pifan&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/aa8d30be1e104cdebdaf1861de8a8db1)](https://app.codacy.com/gh/mrabine/pifan/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![GitHub Releases](https://img.shields.io/github/release/mrabine/pifan.svg)](https://github.com/mrabine/pifan/releases/latest)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mrabine/pifan/blob/main/LICENSE)
 
