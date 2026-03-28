@@ -106,7 +106,9 @@ jobs:
 
       - name: Package
         if: inputs.pack
-        run: cpack -G DEB --config build/gcc-release/CPackConfig.cmake
+        run: |
+          cd build/gcc-release
+          cpack -G DEB
 
       - name: Upload
         if: inputs.pack

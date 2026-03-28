@@ -1,4 +1,4 @@
-build/*
+build/
 *version.h
 *.cproject
 *.project
