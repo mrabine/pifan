@@ -42,7 +42,7 @@ jobs:
 
     needs: [format]
 
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04
 
     container:
       image: joinframework/join-ci:latest
