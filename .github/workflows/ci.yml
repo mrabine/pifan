@@ -1,0 +1,21 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  check:
+    uses: ./.github/workflows/build.yml
+
+    permissions:
+      contents: read
+      security-events: write
+
+    secrets: inherit
+
+    with:
+      scan: false
+      pack: false

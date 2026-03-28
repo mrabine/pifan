@@ -6,7 +6,7 @@ StartLimitBurst=5
 [Service]
 Restart=on-failure
 RestartSec=5s
-ExecStart=/sbin/pifan -n
+ExecStart=/bin/pifan -n
 StandardOutput=null
 StandardError=null
 

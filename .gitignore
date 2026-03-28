@@ -6,3 +6,4 @@ build*
 *.launch
 *.vscode
 *.cache
+CMakeUserPresets.json

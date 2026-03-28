@@ -1,0 +1,21 @@
+name: cd
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/build.yml
+
+    permissions:
+      contents: read
+      security-events: write
+
+    secrets: inherit
+
+    with:
+      scan: false
+      pack: true

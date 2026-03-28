@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -eu
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+cd "$SCRIPT_DIR"
+
+require() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "Error: required tool '$1' not found in PATH" >&2
+        exit 1
+    fi
+}
+
+require gdb-multiarch
+require clang-format
+require cmake
+require ninja
+require gcc
+
+VSCODEDIR=.vscode
+if [ ! -d "$VSCODEDIR" ]; then
+    mkdir -p "$VSCODEDIR"
+
+    cat <<EOMextensions > "$VSCODEDIR/extensions.json"
+{
+  "recommendations": [
+    "ms-vscode.cmake-tools",
+    "ms-vscode.cpptools-extension-pack",
+    "ms-vscode-remote.vscode-remote-extensionpack",
+    "github.vscode-pull-request-github"
+  ]
+}
+EOMextensions
+
+    cat <<EOMsettings > "$VSCODEDIR/settings.json"
+{
+  "editor.formatOnSave": true,
+  "C_Cpp.clang_format_path": "/usr/bin/clang-format",
+  "cmake.useCMakePresets": "always",
+  "cmake.buildBeforeRun": false,
+  "cmake.debugConfig": {
+    "stopAtEntry": false,
+    "cwd": "\${command:cmake.launchTargetDirectory}",
+    "externalConsole": false,
+    "MIMode": "gdb",
+    "miDebuggerPath": "\${env:HOME}/bin/gdb",
+    "setupCommands": [
+      {
+        "description": "Enable pretty-printing for gdb",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
+      }
+    ]
+  },
+  "files.exclude": {
+    "**/.git/**": true,
+    "**/build/**": true
+  },
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/build/**": true
+  }
+}
+EOMsettings
+fi
+
+GDB_WRAPPER="$HOME/bin/gdb"
+if [ ! -f "$GDB_WRAPPER" ]; then
+    mkdir -p "$HOME/bin"
+    cat <<EOMgdb > "$GDB_WRAPPER"
+#!/bin/bash
+sudo gdb-multiarch "\$@"
+EOMgdb
+    chmod +x "$GDB_WRAPPER"
+fi

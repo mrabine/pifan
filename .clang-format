@@ -1,0 +1,73 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+
+# --- Core Layout ---
+ColumnLimit: 120
+IndentWidth: 4
+Standard: Latest
+InsertNewlineAtEOF: true
+
+# --- Includes Management ---
+SortIncludes: Never
+SortUsingDeclarations: Never
+
+# --- Force POSIX / Linux Line Endings ---
+DeriveLineEnding: false
+LineEnding: LF
+
+# --- Access Modifiers (public, private, etc.) ---
+AccessModifierOffset: -4
+
+# --- Namespace Management ---
+NamespaceIndentation: All
+FixNamespaceComments: false
+
+# --- Braces (Allman Style + Space) ---
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterCaseLabel: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: true
+
+# --- Spaces ---
+SpaceBeforeParens: Always
+SpaceAfterTemplateKeyword: true
+
+# --- Assignments & Alignments ---
+AlignConsecutiveAssignments:
+  Enabled: false
+AlignConsecutiveDeclarations: false
+
+# --- Switch/Case ---
+IndentCaseLabels: true
+IndentCaseBlocks: true
+
+# --- Strict Vertical Layout ---
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+AllowShortLambdasOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# --- Function Separation ---
+SeparateDefinitionBlocks: Always
+MaxEmptyLinesToKeep: 2
+
+# --- Constructor Formatting ---
+PackConstructorInitializers: Never
+ConstructorInitializerIndentWidth: 0
+BreakConstructorInitializers: BeforeComma
+
+# --- Preservation & Comments ---
+AlignTrailingComments: true
+ReflowComments: true
