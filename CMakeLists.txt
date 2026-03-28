@@ -18,8 +18,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE src ${GPIOD_INCLUDE_DIRS})
 target_link_directories(${PROJECT_NAME} PRIVATE ${GPIOD_LIBRARY_DIRS})
 target_link_libraries(${PROJECT_NAME} ${GPIOD_LIBRARIES} pthread)
 
+configure_file(
+    ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.service.in
+    ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.service
+    @ONLY
+)
+
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(FILES ${CMAKE_SOURCE_DIR}/resources/${PROJECT_NAME}.service DESTINATION lib/systemd/system)
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.service DESTINATION lib/systemd/system)
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")

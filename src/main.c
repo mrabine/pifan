@@ -81,20 +81,31 @@ void usage ()
  */
 float cputemp ()
 {
-    float temp = -1.0;
+    int temp = 0;
 
     FILE* file = fopen ("/sys/class/thermal/" THERMAL_ZONE "/temp", "r");
-    if (file)
+    if (file == NULL)
     {
-        if (fscanf (file, "%f", &temp) != 1)
-        {
-            syslog (LOG_ERR, "failed to read CPU temperature");
-            temp = 100000.0;  // fail safe, force fan ON.
-        }
-        fclose (file);
+        syslog (LOG_ERR, "failed to open thermal zone");
+        return 100.0f;  // fail safe, force fan ON.
     }
 
-    return temp / 1000.0;
+    if (fscanf (file, "%d", &temp) != 1)
+    {
+        syslog (LOG_ERR, "failed to read CPU temperature");
+        fclose (file);
+        return 100.0f;  // fail safe, force fan ON.
+    }
+
+    fclose (file);
+
+    if (temp < 0)
+    {
+        syslog (LOG_ERR, "thermal zone value out of range: %d", temp);
+        return 100.0f;  // fail safe, force fan ON.
+    }
+
+    return temp / 1000.0f;
 }
 
 /**
@@ -220,7 +231,7 @@ int main (int argc, char** argv)
             _exit (EXIT_SUCCESS);
         }
 
-        umask (0);
+        umask (0177);
 
         if (setsid () < 0)
         {
@@ -244,7 +255,10 @@ int main (int argc, char** argv)
         dup2 (nullfd, STDIN_FILENO);
         dup2 (nullfd, STDOUT_FILENO);
         dup2 (nullfd, STDERR_FILENO);
-        close (nullfd);
+        if (nullfd > STDERR_FILENO)
+        {
+            close (nullfd);
+        }
     }
 
     sigset_t mask;
@@ -266,6 +280,7 @@ int main (int argc, char** argv)
     }
 
     int ret = EXIT_FAILURE;
+    bool owner = false;
 
     struct gpiod_chip* chip = gpiod_chip_open_by_name (chipname);
     if (chip == NULL)
@@ -286,6 +301,8 @@ int main (int argc, char** argv)
         syslog (LOG_ERR, "unable to get ownership on line %u - %s", pin, strerror (errno));
         goto cleanup_line;
     }
+
+    owner = true;
 
     syslog (LOG_NOTICE, "started on %s pin %u (low=%.0f°C high=%.0f°C)", chipname, pin, min, max);
 
@@ -326,10 +343,21 @@ int main (int argc, char** argv)
         if ((nready > 0) && (pfds[0].revents & POLLIN))
         {
             struct signalfd_siginfo fdsi;
+
             ssize_t size = read (sfd, &fdsi, sizeof (fdsi));
+            if (size == -1)
+            {
+                if (errno == EINTR || errno == EAGAIN)
+                {
+                    continue;
+                }
+                syslog (LOG_ERR, "signal read failed - %s", strerror (errno));
+                goto cleanup_line;
+            }
+
             if (size != sizeof (fdsi))
             {
-                syslog (LOG_ERR, "signal read failed - %s", strerror (errno));
+                syslog (LOG_ERR, "unexpected read size %zd (expected %zu)", size, sizeof (fdsi));
                 goto cleanup_line;
             }
 
@@ -348,8 +376,11 @@ int main (int argc, char** argv)
     }
 
 cleanup_line:
-    gpiod_line_set_value (line, 1);  // fail safe, force fan ON.
-    gpiod_line_release (line);
+    if (owner)
+    {
+        gpiod_line_set_value (line, 1);  // fail safe, force fan ON.
+        gpiod_line_release (line);
+    }
 
 cleanup_chip:
     gpiod_chip_close (chip);
