@@ -6,7 +6,7 @@ StartLimitBurst=5
 [Service]
 Restart=on-failure
 RestartSec=5s
-ExecStart=/bin/pifan -n
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/pifan -n
 StandardOutput=null
 StandardError=null
 

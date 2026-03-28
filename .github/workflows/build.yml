@@ -21,7 +21,7 @@ on:
 
 jobs:
   format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -42,7 +42,7 @@ jobs:
 
     needs: [format]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     container:
       image: joinframework/join-ci:latest
@@ -76,7 +76,7 @@ jobs:
   build:
     needs: [format]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     container:
       image: joinframework/join-ci:latest
@@ -99,7 +99,7 @@ jobs:
         run: cmake --build --preset gcc-debug
 
       - name: Configure (release)
-        run: cmake --preset gcc-release
+        run: cmake --preset gcc-release -DCMAKE_INSTALL_PREFIX=/usr
 
       - name: Build (release)
         run: cmake --build --preset gcc-release
