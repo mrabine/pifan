@@ -231,7 +231,7 @@ int main (int argc, char** argv)
             _exit (EXIT_SUCCESS);
         }
 
-        umask (0177);
+        umask (077);
 
         if (setsid () < 0)
         {
