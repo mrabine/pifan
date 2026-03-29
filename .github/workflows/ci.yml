@@ -12,10 +12,5 @@ jobs:
 
     permissions:
       contents: read
-      security-events: write
 
     secrets: inherit
-
-    with:
-      scan: true
-      pack: false

@@ -9,6 +9,9 @@ on:
       pack:
         type: boolean
         default: false
+      release:
+        type: boolean
+        default: false
 
   workflow_dispatch:
     inputs:
@@ -16,6 +19,9 @@ on:
         type: boolean
         default: false
       pack:
+        type: boolean
+        default: false
+      release:
         type: boolean
         default: false
 
@@ -105,14 +111,38 @@ jobs:
         run: cmake --build --preset gcc-release
 
       - name: Package
-        if: inputs.pack
+        if: inputs.pack || inputs.release
         run: |
+          chmod +x ${GITHUB_WORKSPACE}/debian/postinst ${GITHUB_WORKSPACE}/debian/prerm
           cd build/gcc-release
           cpack -G DEB
 
       - name: Upload
-        if: inputs.pack
+        if: inputs.pack || inputs.release
         uses: actions/upload-artifact@v7.0.0
         with:
           name: pifan-package
           path: build/gcc-release/pifan_*.deb
+
+  release:
+    if: inputs.release
+
+    needs: [build, scan]
+
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download
+        uses: actions/download-artifact@v7.0.0
+        with:
+          name: pifan-package
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2.4.1
+        with:
+          files: pifan_*.deb
+          generate_release_notes: true

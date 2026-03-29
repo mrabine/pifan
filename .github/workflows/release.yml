@@ -1,19 +1,19 @@
-name: cd
+name: release
 
 on:
   push:
-    branches: [ main ]
-
-  workflow_dispatch:
+    tags:
+      - 'v*.*.*'
 
 jobs:
-  deploy:
+  build:
     uses: ./.github/workflows/build.yml
 
     permissions:
-      contents: read
+      contents: write
 
     secrets: inherit
 
     with:
-      pack: true
+      scan: true
+      release: true
