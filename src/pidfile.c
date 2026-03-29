@@ -50,14 +50,18 @@ int pidfile_check (void)
         return 0;
     }
 
-    if (kill (pid, 0) == 0)
+    if (kill (pid, 0) == 0 || errno == EPERM)
     {
         syslog (LOG_ERR, "already running with pid %d", pid);
         return 1;
     }
 
     syslog (LOG_NOTICE, "removing stale PID file (pid %d)", pid);
-    pidfile_remove ();
+
+    if (remove (PIDFILE_PATH) == -1 && errno != ENOENT)
+    {
+        syslog (LOG_ERR, "failed to remove PID file - %s", strerror (errno));
+    }
 
     return 0;
 }
@@ -71,7 +75,13 @@ int pidfile_write (void)
         return -1;
     }
 
-    fprintf (f, "%d\n", getpid ());
+    if (fprintf (f, "%d\n", getpid ()) < 0)
+    {
+        syslog (LOG_ERR, "failed to write PID file - %s", strerror (errno));
+        fclose (f);
+        return -1;
+    }
+
     fclose (f);
 
     return 0;
@@ -79,6 +89,21 @@ int pidfile_write (void)
 
 void pidfile_remove (void)
 {
+    FILE* f = fopen (PIDFILE_PATH, "r");
+    if (f == NULL)
+    {
+        return;
+    }
+
+    pid_t pid = 0;
+    int found = (fscanf (f, "%d", &pid) == 1);
+    fclose (f);
+
+    if (!found || pid != getpid ())
+    {
+        return;
+    }
+
     if (remove (PIDFILE_PATH) == -1 && errno != ENOENT)
     {
         syslog (LOG_ERR, "failed to remove PID file - %s", strerror (errno));
