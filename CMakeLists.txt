@@ -48,7 +48,7 @@ below a configurable lower threshold.
 Supports Raspberry Pi 4 and Raspberry Pi 5.")
 set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgpiod2 (>= 2.0)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgpiod2t64 | libgpiod2")
 set(CPACK_DEBIAN_PACKAGE_SUGGESTS "gpiod")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
