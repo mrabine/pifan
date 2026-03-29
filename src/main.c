@@ -246,7 +246,7 @@ int main (int argc, char** argv)
         {
             struct signalfd_siginfo fdsi;
 
-            ssize_t size = read (ctx.sfd, &fdsi, sizeof (fdsi));
+            ssize_t size = read (ctx.sfd, &fdsi, sizeof (struct signalfd_siginfo));
             if (size == -1)
             {
                 if (errno == EINTR || errno == EAGAIN)
