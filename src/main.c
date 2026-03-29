@@ -72,7 +72,7 @@ int main (int argc, char** argv)
 
     const char* chipname = NULL;
     int pin = 14, interval = 2;
-    int daemonize = /*1*/ 0;
+    int daemonize = 1;
     int ret = EXIT_FAILURE;
 
     openlog (BINARY_NAME, LOG_PERROR, LOG_DAEMON);
