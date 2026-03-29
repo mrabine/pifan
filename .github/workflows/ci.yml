@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/build.yml
 
     permissions:
-      contents: read
+      contents: write
+      security-events: write
 
     secrets: inherit
