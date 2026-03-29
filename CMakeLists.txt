@@ -12,11 +12,17 @@ configure_file("${PROJECT_SOURCE_DIR}/version.h.in" "${PROJECT_SOURCE_DIR}/src/v
 include(FindPkgConfig)
 pkg_check_modules(GPIOD REQUIRED libgpiod)
 
-add_definitions(-D_POSIX_C_SOURCE=1)
-add_executable(${PROJECT_NAME} src/main.c)
+add_definitions(-D_POSIX_C_SOURCE=200809L)
+add_executable(${PROJECT_NAME}
+    src/thermal.c
+    src/gpio.c
+    src/pifan.c
+    src/pidfile.c
+    src/main.c
+)
 target_include_directories(${PROJECT_NAME} PRIVATE src ${GPIOD_INCLUDE_DIRS})
 target_link_directories(${PROJECT_NAME} PRIVATE ${GPIOD_LIBRARY_DIRS})
-target_link_libraries(${PROJECT_NAME} ${GPIOD_LIBRARIES} pthread)
+target_link_libraries(${PROJECT_NAME} ${GPIOD_LIBRARIES})
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.service.in
@@ -45,10 +51,14 @@ set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgpiod2 (>= 2.0)")
 set(CPACK_DEBIAN_PACKAGE_SUGGESTS "gpiod")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+    "${CMAKE_SOURCE_DIR}/debian/postinst"
+    "${CMAKE_SOURCE_DIR}/debian/prerm"
+)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "arm64")
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
     set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "armhf")
 else()
     set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")

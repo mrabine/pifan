@@ -22,41 +22,28 @@
  * SOFTWARE.
  */
 
-// pifan.
-#include "version.h"
+#include "pidfile.h"
+#include "pifan.h"
 
-// libgpiod.
-#include <gpiod.h>
-
-// C.
 #include <sys/signalfd.h>
 #include <sys/stat.h>
-#include <stdbool.h>
 #include <signal.h>
 #include <syslog.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
-#include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>
 
-#define THERMAL_ZONE "thermal_zone0"
-
-/**
- * @brief print binary version.
- */
-void version ()
+static void version (void)
 {
     printf (BINARY_NAME " version " VERSION_MAJOR "." VERSION_MINOR "." VERSION_PATCH "\n");
 }
 
-/**
- * @brief print binary usage.
- */
-void usage ()
+static void usage (void)
 {
     printf (
         "Usage\n"
@@ -75,88 +62,25 @@ void usage ()
         "  -v                print version\n");
 }
 
-/**
- * @brief get cpu temperature.
- * @return cpu temperature in degrees Celsius.
- */
-float cputemp ()
-{
-    int temp = 0;
-
-    FILE* file = fopen ("/sys/class/thermal/" THERMAL_ZONE "/temp", "r");
-    if (file == NULL)
-    {
-        syslog (LOG_ERR, "failed to open thermal zone");
-        return 100.0f;  // fail safe, force fan ON.
-    }
-
-    if (fscanf (file, "%d", &temp) != 1)
-    {
-        syslog (LOG_ERR, "failed to read CPU temperature");
-        fclose (file);
-        return 100.0f;  // fail safe, force fan ON.
-    }
-
-    fclose (file);
-
-    if (temp < 0)
-    {
-        syslog (LOG_ERR, "thermal zone value out of range: %d", temp);
-        return 100.0f;  // fail safe, force fan ON.
-    }
-
-    return temp / 1000.0f;
-}
-
-/**
- * @brief auto detect the gpio chip device name.
- * @return gpio chip device name.
- */
-const char* detectchip ()
-{
-    char model[256] = {0};
-
-    FILE* file = fopen ("/proc/device-tree/model", "r");
-    if (!file)
-    {
-        syslog (LOG_ERR, "cannot read hardware info.");
-        return NULL;
-    }
-
-    if (fgets (model, sizeof (model), file) == NULL)
-    {
-        fclose (file);
-        syslog (LOG_ERR, "cannot read hardware info.");
-        return NULL;
-    }
-    fclose (file);
-
-    if (strstr (model, "Raspberry Pi 5"))
-    {
-        return "gpiochip4";
-    }
-
-    if (strstr (model, "Raspberry Pi"))
-    {
-        return "gpiochip0";
-    }
-
-    return NULL;
-}
-
-/**
- * @brief main function.
- * @param argc number of command line arguments.
- * @param argv command line arguments.
- */
 int main (int argc, char** argv)
 {
+    struct pifan_ctx ctx = {
+        .thermal = {.therm = NULL, .min = 55.0f, .max = 65.0f},
+        .gpio = {.chip = NULL, .line = NULL, .owner = 0, .on = 0},
+        .sfd = -1,
+    };
+
+    const char* chipname = NULL;
+    int pin = 14, interval = 2;
+    int daemonize = /*1*/ 0;
+    int ret = EXIT_FAILURE;
+
     openlog (BINARY_NAME, LOG_PERROR, LOG_DAEMON);
 
-    int pin = 14, interval = 2;
-    float min = 55.0, max = 65.0;
-    bool daemonize = true;
-    const char* chipname = NULL;
+    if (thermal_ctx_init (&ctx.thermal) == -1)
+    {
+        goto cleanup;
+    }
 
     for (;;)
     {
@@ -169,52 +93,80 @@ int main (int argc, char** argv)
         switch (command)
         {
             case 'c':
-                printf ("%.2f°C\n", cputemp ());
-                exit (EXIT_SUCCESS);
+                printf ("%.2f°C\n", cpu_temp (&ctx.thermal));
+                ret = EXIT_SUCCESS;
+                goto cleanup;
             case 'g':
                 chipname = optarg;
                 break;
             case 'h':
                 usage ();
-                exit (EXIT_SUCCESS);
+                ret = EXIT_SUCCESS;
+                goto cleanup;
             case 'i':
                 interval = atoi (optarg);
+                if (interval <= 0)
+                {
+                    syslog (LOG_ERR, "interval must be greater than 0.");
+                    goto cleanup;
+                }
                 break;
             case 'l':
-                min = atof (optarg);
+                ctx.thermal.min = atof (optarg);
                 break;
             case 'n':
-                daemonize = false;
+                daemonize = 0;
                 break;
             case 'p':
                 pin = atoi (optarg);
+                if (pin < 0)
+                {
+                    syslog (LOG_ERR, "pin must be a positive integer.");
+                    goto cleanup;
+                }
                 break;
             case 'u':
-                max = atof (optarg);
+                ctx.thermal.max = atof (optarg);
                 break;
             case 'v':
                 version ();
-                exit (EXIT_SUCCESS);
+                ret = EXIT_SUCCESS;
+                goto cleanup;
             default:
                 usage ();
-                exit (EXIT_FAILURE);
+                goto cleanup;
         }
     }
 
-    if (min >= max)
+    if (ctx.thermal.min >= ctx.thermal.max)
     {
         syslog (LOG_ERR, "low threshold must be less than high threshold.");
-        exit (EXIT_FAILURE);
+        goto cleanup;
     }
 
     if (chipname == NULL)
     {
-        chipname = detectchip ();
+        chipname = detect_chip ();
         if (chipname == NULL)
         {
             syslog (LOG_ERR, "unable to auto-detect GPIO chip.");
-            exit (EXIT_FAILURE);
+            goto cleanup;
         }
+    }
+
+    sigemptyset (&ctx.mask);
+    sigaddset (&ctx.mask, SIGINT);
+    sigaddset (&ctx.mask, SIGTERM);
+
+    if (sigprocmask (SIG_BLOCK, &ctx.mask, NULL) == -1)
+    {
+        syslog (LOG_ERR, "sigprocmask failed - %s", strerror (errno));
+        goto cleanup;
+    }
+
+    if (pidfile_check ())
+    {
+        goto cleanup;
     }
 
     if (daemonize)
@@ -223,7 +175,7 @@ int main (int argc, char** argv)
         if (pid < 0)
         {
             syslog (LOG_ERR, "unable to fork daemon - %s", strerror (errno));
-            exit (EXIT_FAILURE);
+            goto cleanup;
         }
 
         if (pid > 0)
@@ -236,20 +188,20 @@ int main (int argc, char** argv)
         if (setsid () < 0)
         {
             syslog (LOG_ERR, "unable to create a new sid - %s", strerror (errno));
-            exit (EXIT_FAILURE);
+            goto cleanup;
         }
 
         if (chdir ("/") < 0)
         {
             syslog (LOG_ERR, "unable to chdir - %s", strerror (errno));
-            exit (EXIT_FAILURE);
+            goto cleanup;
         }
 
         int nullfd = open ("/dev/null", O_RDWR);
         if (nullfd < 0)
         {
             syslog (LOG_ERR, "unable to open \"/dev/null\" - %s", strerror (errno));
-            exit (EXIT_FAILURE);
+            goto cleanup;
         }
 
         dup2 (nullfd, STDIN_FILENO);
@@ -261,73 +213,23 @@ int main (int argc, char** argv)
         }
     }
 
-    sigset_t mask;
-    sigemptyset (&mask);
-    sigaddset (&mask, SIGINT);
-    sigaddset (&mask, SIGTERM);
-
-    if (sigprocmask (SIG_BLOCK, &mask, NULL) == -1)
+    if (pidfile_write () == -1)
     {
-        syslog (LOG_ERR, "sigprocmask failed - %s", strerror (errno));
-        exit (EXIT_FAILURE);
+        goto cleanup;
     }
 
-    int sfd = signalfd (-1, &mask, SFD_NONBLOCK);
-    if (sfd == -1)
+    if (pifan_ctx_init (&ctx, chipname, pin) == -1)
     {
-        syslog (LOG_ERR, "signalfd failed - %s", strerror (errno));
-        exit (EXIT_FAILURE);
+        goto cleanup;
     }
-
-    int ret = EXIT_FAILURE;
-    bool owner = false;
-
-    struct gpiod_chip* chip = gpiod_chip_open_by_name (chipname);
-    if (chip == NULL)
-    {
-        syslog (LOG_ERR, "unable to open gpio chip \"%s\" - %s", chipname, strerror (errno));
-        goto cleanup_sfd;
-    }
-
-    struct gpiod_line* line = gpiod_chip_get_line (chip, pin);
-    if (line == NULL)
-    {
-        syslog (LOG_ERR, "unable to open line %d - %s", pin, strerror (errno));
-        goto cleanup_chip;
-    }
-
-    if (gpiod_line_request_output (line, BINARY_NAME, 0) == -1)
-    {
-        syslog (LOG_ERR, "unable to get ownership on line %u - %s", pin, strerror (errno));
-        goto cleanup_line;
-    }
-
-    owner = true;
-
-    syslog (LOG_NOTICE, "started on %s pin %u (low=%.0f°C high=%.0f°C)", chipname, pin, min, max);
 
     struct pollfd pfds[1];
-    pfds[0].fd = sfd;
+    pfds[0].fd = ctx.sfd;
     pfds[0].events = POLLIN;
-
-    int fan = 0;
 
     for (;;)
     {
-        float temp = cputemp ();
-
-        if (!fan && (temp > max))
-        {
-            syslog (LOG_NOTICE, "starting fan - cpu temp: %.2f°C", temp);
-            gpiod_line_set_value (line, 1);
-            fan = 1;
-        }
-        else if (fan && (temp < min))
-        {
-            syslog (LOG_NOTICE, "stopping fan - cpu temp: %.2f°C", temp);
-            gpiod_line_set_value (line, 0);
-            fan = 0;
-        }
+        update_fan (&ctx);
 
         int nready = poll (pfds, 1, interval * 1000);
         if (nready == -1)
@@ -337,14 +239,14 @@ int main (int argc, char** argv)
                 continue;
             }
             syslog (LOG_ERR, "signal poll failed - %s", strerror (errno));
-            goto cleanup_line;
+            goto cleanup;
         }
 
         if ((nready > 0) && (pfds[0].revents & POLLIN))
         {
             struct signalfd_siginfo fdsi;
 
-            ssize_t size = read (sfd, &fdsi, sizeof (fdsi));
+            ssize_t size = read (ctx.sfd, &fdsi, sizeof (fdsi));
             if (size == -1)
             {
                 if (errno == EINTR || errno == EAGAIN)
@@ -352,13 +254,13 @@ int main (int argc, char** argv)
                     continue;
                 }
                 syslog (LOG_ERR, "signal read failed - %s", strerror (errno));
-                goto cleanup_line;
+                goto cleanup;
             }
 
             if (size != sizeof (fdsi))
             {
                 syslog (LOG_ERR, "unexpected read size %zd (expected %zu)", size, sizeof (fdsi));
-                goto cleanup_line;
+                goto cleanup;
             }
 
             if (fdsi.ssi_signo == SIGINT)
@@ -371,22 +273,13 @@ int main (int argc, char** argv)
             }
 
             ret = EXIT_SUCCESS;
-            break;
+            goto cleanup;
         }
     }
 
-cleanup_line:
-    if (owner)
-    {
-        gpiod_line_set_value (line, 1);  // fail safe, force fan ON.
-        gpiod_line_release (line);
-    }
-
-cleanup_chip:
-    gpiod_chip_close (chip);
-
-cleanup_sfd:
-    close (sfd);
+cleanup:
+    pifan_ctx_cleanup (&ctx);
+    pidfile_remove ();
 
     exit (ret);
 }
