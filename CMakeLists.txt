@@ -12,6 +12,11 @@ configure_file("${PROJECT_SOURCE_DIR}/version.h.in" "${PROJECT_SOURCE_DIR}/src/v
 include(FindPkgConfig)
 pkg_check_modules(GPIOD REQUIRED libgpiod)
 
+include(CheckSymbolExists)
+set(CMAKE_REQUIRED_INCLUDES ${GPIOD_INCLUDE_DIRS})
+set(CMAKE_REQUIRED_LIBRARIES ${GPIOD_LIBRARIES})
+check_symbol_exists(gpiod_line_request_set_value "gpiod.h" HAVE_GPIOD_V2)
+
 add_definitions(-D_POSIX_C_SOURCE=200809L)
 add_executable(${PROJECT_NAME}
     src/thermal.c
@@ -23,6 +28,15 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE src ${GPIOD_INCLUDE_DIRS})
 target_link_directories(${PROJECT_NAME} PRIVATE ${GPIOD_LIBRARY_DIRS})
 target_link_libraries(${PROJECT_NAME} ${GPIOD_LIBRARIES})
+
+if(HAVE_GPIOD_V2)
+    message(STATUS "libgpiod v2 detected")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE GPIOD_V2)
+    set(GPIOD_DEBIAN_DEPENDS "libgpiod3")
+else()
+    message(STATUS "libgpiod v1 detected")
+    set(GPIOD_DEBIAN_DEPENDS "libgpiod2t64 | libgpiod2")
+endif()
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.service.in
@@ -48,7 +62,7 @@ below a configurable lower threshold.
 Supports Raspberry Pi 4 and Raspberry Pi 5.")
 set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgpiod2t64 | libgpiod2")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "${GPIOD_DEBIAN_DEPENDS}")
 set(CPACK_DEBIAN_PACKAGE_SUGGESTS "gpiod")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA

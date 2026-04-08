@@ -132,7 +132,7 @@ void update_fan (struct pifan_ctx* ctx)
         if (temp < ctx->thermal.min)
         {
             syslog (LOG_NOTICE, "stopping fan - cpu temp: %.2f°C", temp);
-            gpiod_line_set_value (ctx->gpio.line, 0);
+            gpio_set_value (&ctx->gpio, 0);
             ctx->gpio.on = 0;
         }
     }
@@ -141,7 +141,7 @@ void update_fan (struct pifan_ctx* ctx)
         if (temp > ctx->thermal.max)
         {
             syslog (LOG_NOTICE, "starting fan - cpu temp: %.2f°C", temp);
-            gpiod_line_set_value (ctx->gpio.line, 1);
+            gpio_set_value (&ctx->gpio, 1);
             ctx->gpio.on = 1;
         }
     }

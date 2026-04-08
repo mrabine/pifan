@@ -33,9 +33,14 @@
 struct gpio_ctx
 {
     struct gpiod_chip* chip;  // gpio chip.
-    struct gpiod_line* line;  // gpio line.
-    int owner;                // whether we own the line or not.
-    int on;                   // fan state (0=off, 1=on).
+#ifdef GPIOD_V2
+    struct gpiod_line_request* request;  // gpio line request (libgpiod v2).
+    unsigned int offset;                 // gpio line offset.
+#else
+    struct gpiod_line* line;  // gpio line (libgpiod v1).
+#endif
+    int owner;  // whether we own the line or not.
+    int on;     // fan state (0=off, 1=on).
 };
 
 /**
@@ -52,5 +57,13 @@ int gpio_ctx_init (struct gpio_ctx* ctx, const char* chipname, int pin);
  * @param ctx gpio context to cleanup.
  */
 void gpio_ctx_cleanup (struct gpio_ctx* ctx);
+
+/**
+ * @brief set the gpio line value.
+ * @param ctx gpio context.
+ * @param value 0 or 1.
+ * @return 0 on success, -1 on failure.
+ */
+int gpio_set_value (struct gpio_ctx* ctx, int value);
 
 #endif

@@ -66,7 +66,11 @@ int main (int argc, char** argv)
 {
     struct pifan_ctx ctx = {
         .thermal = {.therm = NULL, .min = 55.0f, .max = 65.0f},
+#ifdef GPIOD_V2
+        .gpio = {.chip = NULL, .request = NULL, .offset = 0, .owner = 0, .on = 0},
+#else
         .gpio = {.chip = NULL, .line = NULL, .owner = 0, .on = 0},
+#endif
         .sfd = -1,
     };
 
